@@ -25,6 +25,9 @@ Open `http://localhost:3000` for the public website or `http://localhost:3000/ad
    ```
 
 5. Restart the Next.js dev server after changing `.env.example`, then sign in at `/admin`.
+6. In **Authentication → URL Configuration**, add `http://localhost:3000/admin/reset-password` to the allowed redirect URLs for local development. Add `https://your-domain/admin/reset-password` for production after deployment.
+
+The admin login includes **Lupa kata sandi?**. Enter the administrator email to request a recovery email, then open its link to set a new password. Recovery email delivery depends on the project's Auth email provider/SMTP settings.
 
 ## Public website and CMS
 

@@ -171,3 +171,52 @@
 @media (prefers-reduced-motion: reduce) {
   .micra-site *, .micra-site *::before, .micra-site *::after { scroll-behavior: auto!important; transition-duration: .01ms!important; }
 }
+
+.sections-layout .section-items { padding: 1px 5px 0; }
+.sections-layout .section-reorder-help,.sections-layout .section-reorder-status { min-height: 28px; margin: 0; padding: 7px 12px; color: #78877f; font-size: 9px; line-height: 1.5; }
+.sections-layout .section-reorder-status { min-height: 30px; color: #277957; }
+.sections-layout .section-row { grid-template-columns: 20px 29px minmax(0,1fr) 34px 22px; gap: 3px; margin: 4px 2px; padding: 0 4px; transition: background .15s ease,border-color .15s ease,opacity .15s ease; }
+.sections-layout .section-row.dragging { opacity: .48; }
+.sections-layout .section-row.drop-target { border-color: #69a984; background: #edf7f2; box-shadow: inset 0 2px #69a984; }
+.sections-layout .section-drag-handle,.sections-layout .section-reorder-controls button,.sections-layout .section-visibility-btn { display: grid; width: 21px; height: 25px; place-items: center; padding: 0; border: 0; border-radius: 5px; background: transparent; color: #819087; }
+.sections-layout .section-drag-handle { cursor: grab; }
+.sections-layout .section-drag-handle:active { cursor: grabbing; }
+.sections-layout .section-drag-handle:focus-visible,.sections-layout .section-reorder-controls button:focus-visible,.sections-layout .section-visibility-btn:focus-visible,.sections-layout .section-select-btn:focus-visible { outline: 2px solid #65a881; outline-offset: 1px; }
+.sections-layout .section-row-icon { width: 27px; height: 27px; }
+.sections-layout .section-select-btn { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; padding: 5px 1px; border: 0; background: transparent; text-align: left; }
+.sections-layout .section-select-btn strong { max-width: 100%; }
+.sections-layout .section-select-btn span { max-width: 100%; }
+.sections-layout .section-reorder-controls { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.sections-layout .section-reorder-controls button { width: 18px; height: 18px; }
+.sections-layout .section-reorder-controls button:hover:not(:disabled),.sections-layout .section-visibility-btn:hover { background: #e7f2eb; color: #247d5b; }
+.sections-layout .section-reorder-controls button:disabled { opacity: .28; cursor: not-allowed; }
+.sections-layout .section-visibility-btn { color: #91a098; }
+
+@media (max-width: 760px) {
+  .sections-layout .section-row { grid-template-columns: 18px 26px minmax(0,1fr) 28px 20px; gap: 2px; padding-inline: 3px; }
+  .sections-layout .section-drag-handle { width: 18px; }
+}
+
+.password-reset-request { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; margin-top: 6px; }
+.forgot-password-btn { padding: 3px 0; border: 0; background: transparent; color: #176849; font-size: 12px; font-weight: 700; }
+.forgot-password-btn:disabled { color: #8d9992; cursor: not-allowed; }
+.password-reset-message,.password-reset-error,.password-reset-hint { margin: 0; font-size: 11px; line-height: 1.55; }
+.password-reset-message { color: #216d4e; }
+.password-reset-error { color: #b24636; }
+.password-reset-hint { color: #7d8983; }
+.password-reset-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(ellipse at 20% 5%,#e0efe5 0,transparent 42%),#f4f7f4; color: #18372d; }
+.password-reset-card { width: min(440px,100%); padding: 34px; border: 1px solid #e0e9e2; border-radius: 12px; background: white; box-shadow: 0 18px 50px rgba(27,65,46,.09); }
+.password-reset-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 30px; font-size: 15px; font-weight: 800; letter-spacing: 1.5px; }
+.password-reset-brand > span:last-child { display: flex; flex-direction: column; }
+.password-reset-brand small { margin-top: 3px; color: #8a968f; font-size: 8px; font-weight: 600; letter-spacing: .8px; }
+.password-reset-icon { display: grid; width: 44px; height: 44px; place-items: center; margin-bottom: 15px; border-radius: 10px; background: #eaf5ef; color: #247d5b; }
+.password-reset-icon.success { background: #eaf5ef; }
+.password-reset-card h1 { margin: 0; color: #18372d; font-size: 24px; letter-spacing: -.5px; }
+.password-reset-copy { margin: 9px 0 20px; color: #718078; font-size: 13px; line-height: 1.65; }
+.password-reset-form { display: flex; flex-direction: column; gap: 13px; }
+.password-reset-form label { display: flex; flex-direction: column; gap: 6px; color: #334d40; font-size: 11px; font-weight: 700; }
+.password-reset-form input { width: 100%; padding: 11px 12px; border: 1px solid #dce5df; border-radius: 6px; outline: none; font-size: 13px; }
+.password-reset-form input:focus { border-color: #72b396; box-shadow: 0 0 0 3px #edf7f2; }
+.password-reset-form .primary-btn { min-height: 42px; margin-top: 2px; font-size: 12px; }
+.password-reset-form .primary-btn:disabled { opacity: .5; cursor: not-allowed; }
+.password-reset-link { margin-top: 4px; text-decoration: none; }

@@ -8,7 +8,7 @@ import {
   Columns3, Eye, FileText, Globe2, Grid2X2, History, Image,
   LayoutDashboard, LayoutTemplate, Leaf, Menu, MessageSquare,
   Monitor, MoreHorizontal, MousePointerClick, PanelsTopLeft, Plus,
-  Search, Settings, Smartphone, Tablet, Trash2, Upload, RotateCcw,
+  Search, Settings, Smartphone, Tablet, Trash2, Upload, RotateCcw, ChevronUp,
   Users, Waves, Wind, Zap, Check, Copy, GripVertical,
   Save, Send, ArrowUpRight, X, PencilLine
 } from 'lucide-react'
@@ -16,7 +16,7 @@ import {
   createCmsPage, deleteUnusedMedia, getAdminRole, loadAdminMedia, loadAdminPages,
   inviteAdmin, loadAdminProfiles, loadDashboardData, loadEnquiries, loadPageVersions,
   loadSiteSetting, publishPageDraft, restorePageVersion, savePageDraft,
-  saveSiteSetting, updateAdminRole, updateEnquiryStatus, updateMediaAltText, uploadMedia,
+  saveSiteSetting, sendPasswordReset, updateAdminRole, updateEnquiryStatus, updateMediaAltText, uploadMedia,
 } from './lib/cms'
 import { isSupabaseConfigured, supabase, supabaseConfigurationError, type AdminRole, type CmsActivity, type CmsEnquiry, type CmsVersion, type PageContent } from './lib/supabase'
 
@@ -394,10 +394,12 @@ function App() {
     if (nextSections.length) setSelectedSection(nextSections[0])
   }
 
-  const updateSection = (field: keyof Section, value: string | boolean) => {
+  const updateSection = (field: keyof Section, value: string | boolean, sectionId = selectedSection.id) => {
     setSaved(false)
-    const nextSections = sections.map(section => section.id === selectedSection.id ? { ...section, [field]: value } as Section : section)
-    setSelectedSection(prev => ({ ...prev, [field]: value } as Section))
+    const nextSections = sections.map(section => section.id === sectionId ? { ...section, [field]: value } as Section : section)
+    if (selectedSection.id === sectionId) {
+      setSelectedSection(prev => ({ ...prev, [field]: value } as Section))
+    }
     setSections(nextSections)
     setPageContentById(current => ({
       ...current,
@@ -542,8 +544,10 @@ function App() {
   }
 
   const moveSection = (from: number, to: number) => {
+    if (from < 0 || from >= sections.length || to < 0 || to >= sections.length || from === to) return
     const next = [...sections]
     const [moved] = next.splice(from, 1)
+    if (!moved) return
     next.splice(to, 0, moved)
     changeSections(next)
     setSaved(false)
@@ -572,10 +576,14 @@ function App() {
   if (isSupabaseConfigured && session && authError && !authRole) {
     return <LoginView error={authError} onSignOut={() => void supabase?.auth.signOut()} />
   }
-  if (isSupabaseConfigured && !session) return <LoginView error={authError} onLogin={async (email, password) => {
-    const { error } = await supabase!.auth.signInWithPassword({ email, password })
-    if (error) throw new Error(`Login gagal: ${error.message}`)
-  }} />
+  if (isSupabaseConfigured && !session) return <LoginView
+    error={authError}
+    onLogin={async (email, password) => {
+      const { error } = await supabase!.auth.signInWithPassword({ email, password })
+      if (error) throw new Error(`Login gagal: ${error.message}`)
+    }}
+    onPasswordReset={email => sendPasswordReset(email, `${window.location.origin}/admin/reset-password`)}
+  />
 
   return (
     <div className="cms-shell">
@@ -632,7 +640,7 @@ function App() {
               }} />
           )}
           {active === 'sections' && (
-            <SectionsView sections={sections} selectedSection={selectedSection} setSelectedSection={setSelectedSection}
+            <SectionsView sections={sections} pageName={selectedPage.name} selectedSection={selectedSection} setSelectedSection={setSelectedSection}
               updateSection={updateSection} moveSection={moveSection} duplicateSection={duplicateSection}
               onChangeSections={changeSections} onPreview={setPreview} notify={notify}
               onChooseImage={() => setImagePickerTarget('section')} />
@@ -775,15 +783,20 @@ function StatCard({ label, value, detail, icon: Icon, tone }: { label: string, v
   return <section className="stat-card"><div className={`stat-icon ${tone}`}><Icon size={21} /></div><div><span>{label}</span><strong>{value}</strong><small>{detail}</small></div></section>
 }
 
-function LoginView({ error, onLogin, onSignOut }: {
+function LoginView({ error, onLogin, onSignOut, onPasswordReset }: {
   error?: string
   onLogin?: (email: string, password: string) => Promise<void>
   onSignOut?: () => void
+  onPasswordReset?: (email: string) => Promise<void>
 }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [formError, setFormError] = useState('')
+  const [resetBusy, setResetBusy] = useState(false)
+  const [resetMessage, setResetMessage] = useState('')
+  const [resetError, setResetError] = useState('')
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -799,6 +812,21 @@ function LoginView({ error, onLogin, onSignOut }: {
     }
   }
 
+  const requestPasswordReset = async () => {
+    if (!onPasswordReset || !validEmail) return
+    setResetBusy(true)
+    setResetMessage('')
+    setResetError('')
+    try {
+      await onPasswordReset(email.trim())
+      setResetMessage('Jika email tersebut terdaftar, tautan pemulihan akan dikirim. Periksa kotak masuk dan folder spam.')
+    } catch (resetRequestError) {
+      setResetError(resetRequestError instanceof Error ? resetRequestError.message : 'Permintaan pemulihan gagal. Coba lagi.')
+    } finally {
+      setResetBusy(false)
+    }
+  }
+
   return (
     <div className="login-page">
       <form className="login-card" onSubmit={submit}>
@@ -808,9 +836,17 @@ function LoginView({ error, onLogin, onSignOut }: {
         <p className="login-intro">Gunakan akun administrator yang telah didaftarkan.</p>
         {(error || formError) && <div className="login-error">{error || formError}</div>}
         {onLogin ? <>
-          <label>Email<input type="email" autoComplete="username" required value={email} onChange={event => setEmail(event.target.value)} /></label>
+          <label>Email<input type="email" autoComplete="username" required value={email} onChange={event => { setEmail(event.target.value); setResetMessage(''); setResetError('') }} /></label>
           <label>Kata sandi<input type="password" autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} /></label>
           <button className="primary-btn" disabled={busy}>{busy ? 'Memeriksa…' : 'Masuk'}</button>
+          {onPasswordReset && <div className="password-reset-request">
+            <button type="button" className="forgot-password-btn" disabled={!validEmail || resetBusy} onClick={() => void requestPasswordReset()}>
+              {resetBusy ? 'Mengirim tautan…' : 'Lupa kata sandi?'}
+            </button>
+            {resetMessage && <p className="password-reset-message" role="status">{resetMessage}</p>}
+            {resetError && <p className="password-reset-error" role="alert">{resetError}</p>}
+            {!validEmail && <p className="password-reset-hint">Masukkan email akun administrator untuk menerima tautan reset.</p>}
+          </div>}
         </> : <button type="button" className="outline-btn" onClick={onSignOut}>Keluar dan coba lagi</button>}
       </form>
     </div>
@@ -871,29 +907,94 @@ function PagesView({ pages, selectedPage, setSelectedPage, updateSelectedPage, o
   )
 }
 
-function SectionsView({ sections, selectedSection, setSelectedSection, updateSection, moveSection, duplicateSection, onChangeSections, onPreview, notify, onChooseImage }: {
+function SectionsView({ sections, pageName, selectedSection, setSelectedSection, updateSection, moveSection, duplicateSection, onChangeSections, onPreview, notify, onChooseImage }: {
+  pageName: string,
   sections: Section[], selectedSection: Section, setSelectedSection: (s: Section) => void,
-  updateSection: (field: keyof Section, value: string | boolean) => void,
+  updateSection: (field: keyof Section, value: string | boolean, sectionId?: number) => void,
   moveSection: (from: number, to: number) => void, duplicateSection: (s: Section) => void,
   onChangeSections: (items: Section[]) => void, onPreview: (v: 'desktop') => void, notify: (v: string) => void,
   onChooseImage: () => void
 }) {
-  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [draggedSectionId, setDraggedSectionId] = useState<number | null>(null)
+  const [dropTargetId, setDropTargetId] = useState<number | null>(null)
+  const [reorderAnnouncement, setReorderAnnouncement] = useState('')
+
+  const reorderSection = (from: number, to: number) => {
+    if (from < 0 || to < 0 || from >= sections.length || to >= sections.length || from === to) return
+    moveSection(from, to)
+    const section = sections[from]
+    if (section) setReorderAnnouncement(`${section.title} dipindahkan ke posisi ${to + 1} dari ${sections.length}. Simpan draft untuk menerapkan perubahan.`)
+  }
+
+  const finishDrag = (targetId: number) => {
+    if (draggedSectionId === null) return
+    const from = sections.findIndex(section => section.id === draggedSectionId)
+    const to = sections.findIndex(section => section.id === targetId)
+    reorderSection(from, to)
+    setDraggedSectionId(null)
+    setDropTargetId(null)
+  }
+
   return (
     <div className="sections-layout">
       <aside className="section-list">
-        <div className="panel-head"><div><h2>Bagian halaman</h2><p>Beranda</p></div><button className="small-primary"><Plus size={15} /> Baru</button></div>
-        {sections.map((section, index) => (
-          <div key={section.id} draggable onDragStart={() => setDragIndex(index)} onDragOver={e => e.preventDefault()} onDrop={() => { if (dragIndex !== null && dragIndex !== index) moveSection(dragIndex, index); setDragIndex(null) }}
-            className={`section-row ${selectedSection.id === section.id ? 'active' : ''}`} onClick={() => setSelectedSection(section)}>
-            <GripVertical size={16} className="grip" />
-            <div className="section-row-icon">{section.icon === 'sun' ? <Zap size={16} /> : section.icon === 'waves' ? <Waves size={16} /> : <Grid2X2 size={16} />}</div>
-            <div><strong>{section.title}</strong><span>{section.type}</span></div>
-            <button title={section.visible ? 'Sembunyikan' : 'Tampilkan'} onClick={e => { e.stopPropagation(); updateSection('visible', !section.visible); notify(section.visible ? 'Bagian disembunyikan' : 'Bagian ditampilkan kembali') }}>
-              {section.visible ? <Eye size={15} /> : <Archive size={15} />}
-            </button>
-          </div>
-        ))}
+        <div className="panel-head"><div><h2>Bagian halaman</h2><p>{pageName}</p></div><button className="small-primary"><Plus size={15} /> Baru</button></div>
+        <p className="section-reorder-help">Seret ikon pegangan atau gunakan panah untuk mengatur urutan.</p>
+        <div className="section-items" role="list" aria-label="Urutan bagian halaman">
+          {sections.map((section, index) => (
+            <div
+              key={section.id}
+              role="listitem"
+              onDragOver={event => {
+                if (draggedSectionId !== null) {
+                  event.preventDefault()
+                  event.dataTransfer.dropEffect = 'move'
+                  setDropTargetId(section.id)
+                }
+              }}
+              onDrop={event => {
+                event.preventDefault()
+                finishDrag(section.id)
+              }}
+              className={`section-row ${selectedSection.id === section.id ? 'active' : ''} ${draggedSectionId === section.id ? 'dragging' : ''} ${dropTargetId === section.id && draggedSectionId !== section.id ? 'drop-target' : ''}`}
+            >
+              <button
+                type="button"
+                className="section-drag-handle"
+                draggable
+                aria-label={`Seret untuk memindahkan bagian ${section.title}`}
+                title="Seret untuk mengubah urutan"
+                onDragStart={event => {
+                  event.dataTransfer.effectAllowed = 'move'
+                  event.dataTransfer.setData('text/plain', String(section.id))
+                  setDraggedSectionId(section.id)
+                  setDropTargetId(null)
+                }}
+                onDragEnd={() => {
+                  setDraggedSectionId(null)
+                  setDropTargetId(null)
+                }}
+              >
+                <GripVertical size={16} className="grip" />
+              </button>
+              <div className="section-row-icon">{section.icon === 'sun' ? <Zap size={16} /> : section.icon === 'waves' ? <Waves size={16} /> : <Grid2X2 size={16} />}</div>
+              <button type="button" className="section-select-btn" aria-pressed={selectedSection.id === section.id} onClick={() => setSelectedSection(section)}>
+                <strong>{section.title}</strong><span>{section.type}</span>
+              </button>
+              <div className="section-reorder-controls" aria-label={`Atur urutan ${section.title}`}>
+                <button type="button" title="Pindahkan ke atas" aria-label={`Pindahkan ${section.title} ke atas`} disabled={index === 0} onClick={() => reorderSection(index, index - 1)}><ChevronUp size={13} /></button>
+                <button type="button" title="Pindahkan ke bawah" aria-label={`Pindahkan ${section.title} ke bawah`} disabled={index === sections.length - 1} onClick={() => reorderSection(index, index + 1)}><ChevronDown size={13} /></button>
+              </div>
+              <button type="button" className="section-visibility-btn" title={section.visible ? 'Sembunyikan' : 'Tampilkan'} aria-label={`${section.visible ? 'Sembunyikan' : 'Tampilkan'} bagian ${section.title}`} onClick={() => {
+                updateSection('visible', !section.visible, section.id)
+                notify(section.visible ? 'Bagian disembunyikan' : 'Bagian ditampilkan kembali')
+              }}>
+                {section.visible ? <Eye size={15} /> : <Archive size={15} />}
+              </button>
+            </div>
+          ))}
+        </div>
+        <p className="section-reorder-status" role="status" aria-live="polite">{reorderAnnouncement}</p>
       </aside>
       <section className="section-editor">
         <div className="editor-head"><div><strong>Bagian:</strong> {selectedSection.title}</div><div><button className="icon-btn" onClick={() => duplicateSection(selectedSection)} title="Duplikat"><Copy size={16} /></button><button className="outline-btn" onClick={() => onPreview('desktop')}><Eye size={16} /> Pratinjau</button></div></div>

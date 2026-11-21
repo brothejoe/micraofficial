@@ -156,6 +156,11 @@ export async function inviteAdmin(email: string, fullName: string, role: 'editor
   return data.userId
 }
 
+export async function sendPasswordReset(email: string, redirectTo: string) {
+  const { error } = await requireSupabase().auth.resetPasswordForEmail(email, { redirectTo })
+  if (error) throw new Error(`Email pemulihan kata sandi gagal dikirim: ${error.message}`)
+}
+
 export async function loadSiteSetting<T>(key: string, fallback: T): Promise<T> {
   const { data, error } = await requireSupabase().from('site_settings').select('value').eq('key', key).maybeSingle()
   if (error) throw new Error(`Pengaturan situs gagal dimuat: ${error.message}`)
