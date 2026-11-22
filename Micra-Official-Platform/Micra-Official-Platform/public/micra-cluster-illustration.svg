@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 520" fill="none">
+  <rect width="640" height="520" rx="28" fill="#F7F4EC"/>
+  <path d="M0 335C91 298 168 371 252 338c82-32 145-98 229-75 64 17 106 64 159 50v207H0V335Z" fill="#E8E2D2"/>
+  <path d="M0 392c92-35 157 19 248-4 93-23 160-85 242-60 65 20 101 66 150 56" stroke="#B6C8B8" stroke-width="3" stroke-linecap="round"/>
+  <rect x="55" y="58" width="530" height="352" rx="24" fill="#E8EFE7" stroke="#C9D8CD" stroke-width="2"/>
+  <path d="M94 111h173v103H94zM94 240h173v105H94z" fill="#82A99A"/>
+  <path d="M99 118h163v88H99zM99 247h163v91H99z" fill="#397B6A"/>
+  <path d="M111 132c37 11 67-10 101 2 17 7 32 7 45 4M111 264c33 8 71-9 102 2 15 5 31 7 45 2" stroke="#B8D3C4" stroke-width="3" stroke-linecap="round"/>
+  <rect x="296" y="111" width="247" height="54" rx="15" fill="#D9E5D8" stroke="#B6C8B8" stroke-width="2"/>
+  <path d="M315 138h207" stroke="#397B6A" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="352" cy="138" r="10" fill="#F7F4EC" stroke="#397B6A" stroke-width="4"/>
+  <circle cx="461" cy="138" r="10" fill="#F7F4EC" stroke="#397B6A" stroke-width="4"/>
+  <path d="M267 162h29M267 292h29M543 138v151H267" stroke="#397B6A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M275 280l-12 12 12 12M535 280l12 12-12 12" stroke="#397B6A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="320" y="213" width="174" height="66" rx="14" fill="#FBFCFA" stroke="#C9D8CD" stroke-width="2"/>
+  <path d="M341 240h42M341 253h70" stroke="#789687" stroke-width="4" stroke-linecap="round"/>
+  <path d="M449 226v34M433 243h32M438 232l22 22M460 232l-22 22" stroke="#176B50" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="449" cy="243" r="20" stroke="#176B50" stroke-width="2"/>
+  <path d="M495 326c-13-24-9-47 8-66 16 21 18 43 2 66M511 326c0-25 12-42 34-51 2 26-8 44-31 55M491 327c-10-19-26-27-48-23 9 22 24 31 46 27" fill="#6F9478"/>
+  <path d="M470 330h89" stroke="#507A62" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="494" cy="342" r="12" fill="#507A62"/>
+  <circle cx="533" cy="347" r="10" fill="#6F9478"/>
+  <circle cx="568" cy="340" r="13" fill="#507A62"/>
+  <path d="M106 378h428" stroke="#C3D0C2" stroke-width="2" stroke-dasharray="5 8"/>
+  <text x="94" y="91" fill="#143B34" font-family="Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="1.5">FARMER-OWNED PONDS</text>
+  <text x="320" y="195" fill="#143B34" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2">SHARED WATER SYSTEM</text>
+  <text x="320" y="305" fill="#143B34" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2">SITE-ASSESSED AERATION</text>
+  <text x="58" y="461" fill="#52635D" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2">ILLUSTRATIVE CLUSTER CONCEPT</text>
+  <text x="58" y="480" fill="#52635D" font-family="Arial, sans-serif" font-size="10">Not a site plan or record of an implemented MICRA project</text>
+</svg>
